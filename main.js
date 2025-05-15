@@ -54,8 +54,19 @@ sidebar.style = `
   padding: 12px 16px; min-width: 220px; max-height: 70vh; overflow-y: auto; border: 2px solid #EC6525; color: #494343;
   font-size: 15px; display: none;
 `;
-sidebar.innerHTML = `<b>Nearby POIs</b><ul id="poiList" style="padding-left:18px;"></ul>`;
+sidebar.innerHTML = `
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <b>Nearby POIs</b>
+    <button id="closeSidebarBtn" style="background:#EC6525;color:#f9f5f3;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:16px;">×</button>
+  </div>
+  <ul id="poiList" style="padding-left:18px;"></ul>
+`;
 document.body.appendChild(sidebar);
+
+// Add close button event
+document.getElementById('closeSidebarBtn').onclick = () => {
+  sidebar.style.display = 'none';
+};
 
 // --- Map Initialization ---
 const map = L.map('map').setView([38.7223, -9.1393], 12);
