@@ -1,8 +1,9 @@
 body {
+    --placeholder-color: #494343; /* Define a CSS variable for placeholder color */
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: #f9f5f3;
+    background: #f9f5f3; /* Background color matching the body */
 }
 
 #map {
@@ -13,41 +14,45 @@ body {
 
 .header {
     background-color: #f9f5f3;
-    padding: 10px 0 10px 0;
+    padding: 10px 0;
     text-align: center;
     font-size: 18px;
     font-weight: bold;
     color: #494343;
     border-bottom: 2px solid #EC6525;
     box-shadow: 0 2px 8px rgba(236, 101, 37, 0.05);
+    /* Ensures the header stays above other elements like the map and popups */
     z-index: 1000;
     position: relative;
 }
-
 input[type="text"], select, input[type="range"] {
     font-size: 16px;
     margin: 0 4px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #494343;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
-button {
-    font-size: 16px;
-}
-
 .leaflet-popup-content-wrapper {
     background: #fff;
-    border: 2px solid #EC6525;
+    border: 2px solid var(--theme-accent-color, #EC6525);
     color: #494343;
     border-radius: 8px;
 }
 
 .leaflet-popup-tip {
-    background: #EC6525;
+    background: var(--theme-accent-color, #EC6525);
+    border-radius: 8px;
 }
 
-::-webkit-input-placeholder { color: #494343; }
-::-moz-placeholder { color: #494343; }
-:-ms-input-placeholder { color: #494343; }
-::placeholder { color: #494343; }
+::placeholder,
+::-webkit-input-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+    color: var(--placeholder-color);
+}
 
 .poi {
     background-color: #ffffff;
@@ -66,4 +71,40 @@ button {
 .poi-description {
     font-size: 14px;
     color: #555;
+}
+
+/* Sidebar styles */
+#poiSidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 350px;
+    max-width: 90vw;
+    height: calc(100vh - 60px);
+    background: #fff;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    z-index: 1100;
+    display: none; /* Hidden by default */
+}
+
+#poiSidebar.open {
+    display: block;
+}
+
+#openSidebarBtn {
+    position: fixed;
+    top: 70px;
+    left: 10px;
+    z-index: 1200;
+    background: #EC6525;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }

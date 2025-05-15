@@ -32,57 +32,61 @@ const poiTypes = [
 ];
 
 // --- UI Elements ---
-const header = document.createElement('div');
-header.className = 'header';
-header.innerHTML = `
-  <input id="addressInput" type="text" placeholder="Digite o endereço..." style="width: 300px; padding: 8px; border-radius: 5px; border: 1px solid #EC6525;">
-  <button id="searchBtn" style="background:#EC6525;color:#fff;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;">Pesquisar</button>
-  <label style="margin-left:20px;">Raio: <span id="radiusValue">1000</span>m</label>
-  <input id="radiusSlider" type="range" min="1000" max="10000" step="500" value="1000" style="vertical-align:middle;">
-  <select id="poiFilter" style="margin-left:20px;min-width:200px;max-width:400px;height:32px;vertical-align:middle;background:#EC6525;color:#f9f5f3;border-radius:5px;">
-    <option value="" selected>Todos os tipos de POI</option>
-    ${poiTypes.map((p, i) => `<option value="${i}">${p.label}</option>`).join('')}
-  </select>
-  <span style="font-size:14px; margin-left:8px;">(Filtrar tipo de POI)</span>
-`;
-document.body.insertBefore(header, document.body.firstChild);
-
-const sidebar = document.createElement('div');
-sidebar.id = 'poiSidebar';
-sidebar.style = `
-  position: absolute; top: 70px; left: 10px; z-index: 1001; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(236,101,37,0.10); 
-  padding: 12px 16px; min-width: 220px; max-height: 70vh; overflow-y: auto; border: 2px solid #EC6525; color: #494343;
-  font-size: 15px; display: none;
-`;
-sidebar.innerHTML = `
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <b>Nearby POIs</b>
-    <button id="closeSidebarBtn" style="background:#EC6525;color:#f9f5f3;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:16px;">×</button>
-  </div>
-  <ul id="poiList" style="padding-left:18px;"></ul>
-`;
-document.body.appendChild(sidebar);
-
-// Add reopen button
-const reopenBtn = document.createElement('button');
-reopenBtn.id = 'openSidebarBtn';
-reopenBtn.textContent = 'Show POIs';
-reopenBtn.style = `
-  position: absolute; top: 70px; left: 10px; z-index: 1002; background: #EC6525; color: #f9f5f3;
-  border: none; border-radius: 4px; padding: 6px 14px; cursor: pointer; font-size: 15px; display: none;
-`;
-document.body.appendChild(reopenBtn);
-
-// Add close button event
-document.getElementById('closeSidebarBtn').onclick = () => {
-  sidebar.style.display = 'none';
-  reopenBtn.style.display = 'block';
+const translations = {
+  pt: {
+    search: "Pesquisar",
+    radius: "Raio",
+    allTypes: "Todos os tipos de POI",
+    filter: "(Filtrar tipo de POI)",
+    loading: "A carregar...",
+    error: "Falha ao carregar POIs. Por favor tente novamente.",
+    export: "Exportar PDF",
+    sidebarTitle: "POIs Próximos",
+    showPois: "Mostrar POIs",
+    addressPlaceholder: "Digite o endereço...",
+    noPois: "Nenhum POI encontrado.",
+    addressNotFound: "Endereço não encontrado!"
+  },
+  en: {
+    search: "Search",
+    radius: "Radius",
+    allTypes: "All POI types",
+    filter: "(Filter POI type)",
+    loading: "Loading...",
+    error: "Failed to load POIs. Please try again.",
+    export: "Export PDF",
+    sidebarTitle: "Nearby POIs",
+    showPois: "Show POIs",
+    addressPlaceholder: "Enter address...",
+    noPois: "No POIs found.",
+    addressNotFound: "Address not found!"
+  }
 };
+let currentLang = "pt";
 
-// Add reopen button event
-reopenBtn.onclick = () => {
-  sidebar.style.display = 'block';
-  reopenBtn.style.display = 'none';
+// --- DOM Elements ---
+const sidebar = document.getElementById('poiSidebar');
+const openSidebarBtn = document.getElementById('openSidebarBtn');
+const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+const poiList = document.getElementById('poiList');
+const addressInput = document.getElementById('addressInput');
+const searchBtn = document.getElementById('searchBtn');
+const radiusSlider = document.getElementById('radiusSlider');
+const radiusValue = document.getElementById('radiusValue');
+const poiFilter = document.getElementById('poiFilter');
+const exportPdfBtn = document.getElementById('exportPdfBtn');
+const langSwitcher = document.getElementById('langSwitcher');
+const loadingDiv = document.getElementById('loadingIndicator');
+const errorDiv = document.getElementById('errorIndicator');
+
+// --- Sidebar Logic ---
+closeSidebarBtn.onclick = () => {
+  sidebar.classList.remove('open');
+  openSidebarBtn.style.display = 'block';
+};
+openSidebarBtn.onclick = () => {
+  sidebar.classList.add('open');
+  openSidebarBtn.style.display = 'none';
 };
 
 // --- Map Initialization ---
@@ -100,137 +104,160 @@ let currentLon = -9.1393;
 let currentRadius = 1000;
 let lastAddress = '';
 
-// --- Helper: SVG Icon Generator (Outlined) ---
-function makeSvgIcon(svgPath) {
-  return L.divIcon({
-    className: '',
-    html: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EC6525" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${svgPath}"/></svg>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -28]
-  });
-}
-
 // --- Helper: Custom Icon Loader ---
-function makeCustomIcon(filename) {
+function makeCustomIcon(label) {
+  const iconUrl = (typeof poiIconBase64 !== "undefined" && poiIconBase64[label]) ? poiIconBase64[label] : null;
   return L.icon({
-    iconUrl: `icons/${filename}`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -28]
+    iconUrl: iconUrl,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
   });
 }
 
 // --- Geocode Address ---
-function geocodeAddress(address) {
+async function geocodeAddress(address) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address + ', Lisboa, Portugal')}`;
-  return fetch(url)
-    .then(res => res.json())
-    .then(results => results.length ? results[0] : null);
+  const resp = await fetch(url, { headers: { 'Accept-Language': currentLang } });
+  const data = await resp.json();
+  if (data.length === 0) throw new Error(translations[currentLang].addressNotFound);
+  return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
 }
 
 // --- Fetch POIs (with filter) ---
-function fetchPOIs(lat, lon, radius, filterIndex) {
+async function fetchPOIs(lat, lon, radius, filterIndex) {
+  let filters = [];
+  if (filterIndex !== "" && filterIndex !== null) {
+    const t = poiTypes[filterIndex];
+    filters.push(`node["${t.key}"="${t.value}"](around:${radius},${lat},${lon});`);
+    filters.push(`way["${t.key}"="${t.value}"](around:${radius},${lat},${lon});`);
+    filters.push(`relation["${t.key}"="${t.value}"](around:${radius},${lat},${lon});`);
+  } else {
+    for (const t of poiTypes) {
+      filters.push(`node["${t.key}"="${t.value}"](around:${radius},${lat},${lon});`);
+    }
+  }
+  const query = `[out:json][timeout:25];(${filters.join('')});out center;`;
+  const url = "https://overpass-api.de/api/interpreter";
+  const resp = await fetch(url, { method: "POST", body: query });
+  const data = await resp.json();
+  return data.elements;
+}
+
+// --- Render POIs on Map and Sidebar ---
+function renderPOIs(pois) {
+  // Remove old markers
   poiMarkers.forEach(m => map.removeLayer(m));
   poiMarkers = [];
+  poiList.innerHTML = "";
 
-  // Filter POI types
-  let filteredTypes = poiTypes;
-  if (filterIndex !== "") {
-    filteredTypes = [poiTypes[parseInt(filterIndex)]];
+  if (!pois.length) {
+    poiList.innerHTML = `<li>${translations[currentLang].noPois}</li>`;
+    return;
   }
 
-  let query = `[out:json][timeout:25];(`;
-  filteredTypes.forEach(poi => {
-    query += `node["${poi.key}"="${poi.value}"](around:${radius},${lat},${lon});`;
-    query += `way["${poi.key}"="${poi.value}"](around:${radius},${lat},${lon});`;
-    query += `relation["${poi.key}"="${poi.value}"](around:${radius},${lat},${lon});`;
+  pois.forEach(poi => {
+    // Find type
+    const type = poiTypes.find(t => (poi.tags && (poi.tags[t.key] === t.value)));
+    const label = type ? type.label : "POI";
+    const icon = type ? makeCustomIcon(label) : undefined;
+    const name = poi.tags && (poi.tags.name || label);
+
+    // Marker
+    const marker = L.marker([poi.lat || poi.center.lat, poi.lon || poi.center.lon], { icon });
+    marker.bindPopup(`<b>${name}</b><br>${label}`);
+    marker.addTo(map);
+    poiMarkers.push(marker);
+
+    // Sidebar
+    const li = document.createElement('li');
+    li.innerHTML = `<img src="${icon.options.iconUrl}" style="width:24px;height:24px;vertical-align:middle;margin-right:8px;">${name}`;
+    li.style.cursor = "pointer";
+    li.onclick = () => {
+      map.setView([poi.lat || poi.center.lat, poi.lon || poi.center.lon], 16);
+      marker.openPopup();
+    };
+    poiList.appendChild(li);
   });
-  query += `);out center;`;
-
-  fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query
-  })
-    .then(res => res.json())
-    .then(data => {
-      const poiList = document.getElementById('poiList');
-      poiList.innerHTML = '';
-      let count = 0;
-      data.elements.forEach(element => {
-        const elLat = element.lat || element.center?.lat;
-        const elLon = element.lon || element.center?.lon;
-        if (elLat && elLon) {
-          const poi = filteredTypes.find(p =>
-            element.tags && element.tags[p.key] === p.value
-          );
-          let icon;
-          if (poi && poi.iconFile) {
-            icon = makeCustomIcon(poi.iconFile);
-          } else if (poi) {
-            icon = makeSvgIcon(poi.icon);
-          }
-          const label = poi ? poi.label : 'POI';
-          const name = element.tags && element.tags.name ? element.tags.name : '(Sem nome)';
-          const marker = L.marker([elLat, elLon], { icon })
-            .addTo(map)
-            .bindPopup(`<b>${label}</b><br>${name}`);
-          poiMarkers.push(marker);
-
-          // Add to sidebar list
-          const li = document.createElement('li');
-          li.textContent = `${label}: ${name}`;
-          li.style.cursor = 'pointer';
-          li.onclick = () => {
-            map.setView([elLat, elLon], 17);
-            marker.openPopup();
-          };
-          poiList.appendChild(li);
-          count++;
-        }
-      });
-      // Show/hide sidebar
-      document.getElementById('poiSidebar').style.display = count ? 'block' : 'none';
-      document.getElementById('openSidebarBtn').style.display = 'none';
-    });
 }
 
 // --- Search Handler (with filter) ---
-function searchAndShow(address, radius, filterIndex) {
-  geocodeAddress(address).then(result => {
-    if (!result) {
-      alert('Endereço não encontrado!');
-      return;
-    }
-    currentLat = parseFloat(result.lat);
-    currentLon = parseFloat(result.lon);
-    map.setView([currentLat, currentLon], 15);
+async function searchAndShow(address, radius, filterIndex) {
+  loadingDiv.style.display = "block";
+  errorDiv.style.display = "none";
+  try {
+    const { lat, lon } = await geocodeAddress(address);
+    currentLat = lat;
+    currentLon = lon;
+    currentRadius = radius;
+    map.setView([lat, lon], 15);
 
+    // FSBO marker (main address)
     if (fsboMarker) map.removeLayer(fsboMarker);
-    fsboMarker = L.marker([currentLat, currentLon], {
-      icon: makeSvgIcon('M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z')
-    }).addTo(map).bindPopup('<b>Imóvel FSBO</b><br>' + address).openPopup();
+    fsboMarker = L.marker([lat, lon]).addTo(map);
 
-    fetchPOIs(currentLat, currentLon, radius, filterIndex);
-  });
+    // Fetch POIs
+    const pois = await fetchPOIs(lat, lon, radius, filterIndex);
+    renderPOIs(pois);
+
+    sidebar.classList.add('open');
+    openSidebarBtn.style.display = 'none';
+  } catch (err) {
+    errorDiv.textContent = err.message || translations[currentLang].error;
+    errorDiv.style.display = "block";
+  } finally {
+    loadingDiv.style.display = "none";
+  }
 }
 
 // --- UI Events ---
-document.getElementById('searchBtn').onclick = () => {
-  const address = document.getElementById('addressInput').value;
-  const filterIndex = document.getElementById('poiFilter').value;
-  if (address) {
-    lastAddress = address;
-    searchAndShow(address, currentRadius, filterIndex);
-  }
+searchBtn.onclick = () => {
+  searchAndShow(addressInput.value, parseInt(radiusSlider.value), poiFilter.value);
 };
-document.getElementById('radiusSlider').oninput = (e) => {
-  currentRadius = e.target.value;
-  document.getElementById('radiusValue').innerText = currentRadius;
-  const filterIndex = document.getElementById('poiFilter').value;
-  if (lastAddress) searchAndShow(lastAddress, currentRadius, filterIndex);
+radiusSlider.oninput = (e) => {
+  radiusValue.textContent = e.target.value;
 };
-document.getElementById('poiFilter').onchange = () => {
-  const filterIndex = document.getElementById('poiFilter').value;
-  if (lastAddress) searchAndShow(lastAddress, currentRadius, filterIndex);
+poiFilter.onchange = () => {
+  searchAndShow(addressInput.value, parseInt(radiusSlider.value), poiFilter.value);
+};
+langSwitcher.onchange = (e) => {
+  currentLang = e.target.value;
+  updateLanguageUI();
+};
+function updateLanguageUI() {
+  searchBtn.textContent = translations[currentLang].search;
+  document.getElementById('radiusLabel').childNodes[0].nodeValue = translations[currentLang].radius + ": ";
+  document.getElementById('filterLabel').textContent = translations[currentLang].filter;
+  exportPdfBtn.textContent = translations[currentLang].export;
+  addressInput.placeholder = translations[currentLang].addressPlaceholder;
+  sidebar.querySelector('b').textContent = translations[currentLang].sidebarTitle;
+  openSidebarBtn.textContent = translations[currentLang].showPois;
+}
+
+// Fill POI filter dropdown
+poiTypes.forEach((t, i) => {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = t.label;
+  poiFilter.appendChild(opt);
+});
+
+// --- Export to PDF ---
+exportPdfBtn.onclick = () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 20;
+  doc.setFontSize(16);
+  doc.text(translations[currentLang].sidebarTitle, 10, y);
+  y += 10;
+  Array.from(poiList.children).forEach(li => {
+    const img = li.querySelector('img');
+    const text = li.textContent;
+    if (img) {
+      doc.addImage(img.src, 'PNG', 10, y, 8, 8);
+      doc.text(text, 20, y + 7);
+      y += 12;
+    }
+  });
+  doc.save("pois.pdf");
 };
