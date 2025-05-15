@@ -63,9 +63,26 @@ sidebar.innerHTML = `
 `;
 document.body.appendChild(sidebar);
 
+// Add reopen button
+const reopenBtn = document.createElement('button');
+reopenBtn.id = 'openSidebarBtn';
+reopenBtn.textContent = 'Show POIs';
+reopenBtn.style = `
+  position: absolute; top: 70px; left: 10px; z-index: 1002; background: #EC6525; color: #f9f5f3;
+  border: none; border-radius: 4px; padding: 6px 14px; cursor: pointer; font-size: 15px; display: none;
+`;
+document.body.appendChild(reopenBtn);
+
 // Add close button event
 document.getElementById('closeSidebarBtn').onclick = () => {
   sidebar.style.display = 'none';
+  reopenBtn.style.display = 'block';
+};
+
+// Add reopen button event
+reopenBtn.onclick = () => {
+  sidebar.style.display = 'block';
+  reopenBtn.style.display = 'none';
 };
 
 // --- Map Initialization ---
@@ -174,6 +191,7 @@ function fetchPOIs(lat, lon, radius, filterIndex) {
       });
       // Show/hide sidebar
       document.getElementById('poiSidebar').style.display = count ? 'block' : 'none';
+      document.getElementById('openSidebarBtn').style.display = 'none';
     });
 }
 
