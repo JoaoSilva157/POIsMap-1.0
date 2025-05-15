@@ -106,9 +106,22 @@ let lastAddress = '';
 
 // --- Helper: Custom Icon Loader ---
 function makeCustomIcon(label) {
-  const iconUrl = (typeof poiIconBase64 !== "undefined" && poiIconBase64[label]) ? poiIconBase64[label] : null;
+  let iconUrl = (typeof poiIconBase64 !== "undefined" && poiIconBase64[label]) ? poiIconBase64[label] : null;
+  // Fallback: use a default SVG icon in your theme color
+  if (!iconUrl) {
+    iconUrl = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="14" fill="%23EC6525" stroke="white" stroke-width="3"/></svg>';
+  }
   return L.icon({
     iconUrl: iconUrl,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+  });
+}
+
+function makeFsboIcon() {
+  return L.icon({
+    iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="14" fill="%23EC6525" stroke="white" stroke-width="3"/><text x="16" y="22" font-size="16" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold">🏠</text></svg>',
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -32]
@@ -194,7 +207,7 @@ async function searchAndShow(address, radius, filterIndex) {
 
     // FSBO marker (main address)
     if (fsboMarker) map.removeLayer(fsboMarker);
-    fsboMarker = L.marker([lat, lon]).addTo(map);
+    fsboMarker = L.marker([lat, lon], { icon: makeFsboIcon() }).addTo(map);
 
     // Fetch POIs
     const pois = await fetchPOIs(lat, lon, radius, filterIndex);
