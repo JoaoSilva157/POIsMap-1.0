@@ -14,15 +14,15 @@
     <b>POIs Próximos</b>
     <ul id="poiList"></ul>
   </div>
-  <div style="padding:10px;">
-    <input id="addressInput" type="text" placeholder="Digite o endereço..." style="width:220px;">
+  <div class="toolbar">
+    <input id="addressInput" type="text" placeholder="Digite o endereço...">
+    <button id="searchBtn">Pesquisar</button>
     <label id="radiusLabel">Raio: <span id="radiusValue">1000</span>m</label>
     <input id="radiusSlider" type="range" min="100" max="2000" step="100" value="1000">
-    <label id="filterLabel">(Filtrar tipo de POI)</label>
     <select id="poiFilter">
-      <option value="">Todos</option>
+      <option value="">Todos os tipos de POI</option>
     </select>
-    <button id="searchBtn">Pesquisar</button>
+    <label id="filterLabel">(Filtrar tipo de POI)</label>
     <button id="exportPdfBtn">Exportar PDF</button>
     <select id="langSwitcher">
       <option value="pt">PT</option>

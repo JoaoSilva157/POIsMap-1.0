@@ -2,29 +2,78 @@ body {
     --placeholder-color: #494343; /* Define a CSS variable for placeholder color */
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     background: #f9f5f3; /* Background color matching the body */
+    color: #494343;
 }
 
 #map {
-    height: 100vh; /* Full height of the viewport */
-    width: 100%; /* Full width of the viewport */
+    height: calc(100vh - 120px);
+    width: 100vw;
     background: #f9f5f3;
+    margin: 0;
+    padding: 0;
 }
 
 .header {
-    background-color: #f9f5f3;
-    padding: 10px 0;
+    background: #f9f5f3;
+    padding: 18px 0 10px 0;
     text-align: center;
-    font-size: 18px;
+    font-size: 2rem;
     font-weight: bold;
-    color: #494343;
+    color: #EC6525;
     border-bottom: 2px solid #EC6525;
-    box-shadow: 0 2px 8px rgba(236, 101, 37, 0.05);
     /* Ensures the header stays above other elements like the map and popups */
     z-index: 1000;
     position: relative;
+    letter-spacing: 1px;
 }
+
+.toolbar {
+    background: #f9f5f3;
+    padding: 18px 0 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-bottom: 2px solid #EC6525;
+}
+
+.toolbar input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #EC6525;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #494343;
+    background: #fff;
+    width: 220px;
+}
+
+.toolbar button, .toolbar select {
+    background: #EC6525;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 14px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.toolbar button:hover, .toolbar select:hover {
+    background: #d35400;
+}
+
+.toolbar label, .toolbar span {
+    color: #494343;
+    font-size: 1rem;
+}
+
+#radiusSlider {
+    accent-color: #EC6525;
+}
+
 input[type="text"], select, input[type="range"] {
     font-size: 16px;
     margin: 0 4px;
@@ -35,6 +84,7 @@ input[type="text"], select, input[type="range"] {
     color: #494343;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
 .leaflet-popup-content-wrapper {
     background: #fff;
     border: 2px solid var(--theme-accent-color, #EC6525);
@@ -76,18 +126,19 @@ input[type="text"], select, input[type="range"] {
 /* Sidebar styles */
 #poiSidebar {
     position: fixed;
-    top: 60px;
+    top: 80px;
     left: 0;
     width: 350px;
     max-width: 90vw;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 80px);
     background: #fff;
     border-radius: 0 8px 8px 0;
-    font-size: 14px;
+    font-size: 15px;
     box-shadow: 2px 0 8px rgba(0,0,0,0.1);
     overflow-y: auto;
     z-index: 1100;
     display: none; /* Hidden by default */
+    color: #494343;
 }
 
 #poiSidebar.open {
@@ -96,7 +147,7 @@ input[type="text"], select, input[type="range"] {
 
 #openSidebarBtn {
     position: fixed;
-    top: 70px;
+    top: 90px;
     left: 10px;
     z-index: 1200;
     background: #EC6525;
@@ -107,4 +158,31 @@ input[type="text"], select, input[type="range"] {
     cursor: pointer;
     font-size: 16px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#closeSidebarBtn {
+    background: #EC6525;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 10px 0 10px 10px;
+}
+
+#poiList li {
+    list-style: none;
+    margin: 10px 0;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0e6e0;
+    display: flex;
+    align-items: center;
+}
+
+#poiList img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    vertical-align: middle;
 }
