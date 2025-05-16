@@ -140,17 +140,26 @@ function calculateQualityScores(pois) {
     }
   });
   
-  // Calculate scores (0-100)
+  // Calculate scores (0-100) with radius normalization
   const scores = {};
   let totalWeightedScore = 0;
   let totalWeight = 0;
   
+  // Fator de normalização baseado no raio
+  // Raio de referência: 500m (considerado um raio padrão para análise de bairro)
+  const referenceRadius = 500;
+  const radiusNormalizationFactor = Math.sqrt(referenceRadius / currentRadius);
+  
   Object.entries(categories).forEach(([category, data]) => {
-    // Base score calculation
-    let baseScore = Math.min(100, Math.max(0, data.count * 10));
+    // Aplicar fator de normalização à contagem
+    const normalizedCount = Math.round(data.count * radiusNormalizationFactor);
+    const normalizedPremium = Math.round(data.premium * radiusNormalizationFactor);
+    
+    // Base score calculation (normalizada pelo raio)
+    let baseScore = Math.min(100, Math.max(0, normalizedCount * 10));
     
     // Premium bonus (up to 30% boost)
-    const premiumBonus = data.premium > 0 ? Math.min(30, data.premium * 10) : 0;
+    const premiumBonus = normalizedPremium > 0 ? Math.min(30, normalizedPremium * 10) : 0;
     
     // Final score with premium bonus
     const finalScore = Math.min(100, baseScore + (baseScore * premiumBonus / 100));
