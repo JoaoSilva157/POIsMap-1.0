@@ -8,13 +8,13 @@
 </head>
 <body>
   <!-- Header removed to save space -->
-  <button id="openSidebarBtn">Abrir Lista</button>
   <div id="poiSidebar">
     <button id="closeSidebarBtn">Fechar</button>
     <b>POIs Próximos</b>
     <ul id="poiList"></ul>
   </div>
   <div class="toolbar">
+    <button id="openSidebarBtn">Abrir Lista</button>
     <input id="addressInput" type="text" placeholder="Digite o endereço...">
     <button id="searchBtn">Pesquisar</button>
     <label id="radiusLabel">Raio: <span id="radiusValue">1000</span>m</label>
@@ -22,7 +22,6 @@
     <select id="poiFilter">
       <option value="">Todos os tipos de POI</option>
     </select>
-    <label id="filterLabel">(Filtrar tipo de POI)</label>
     <button id="exportPdfBtn">Exportar PDF</button>
     <select id="langSwitcher">
       <option value="pt">PT</option>
