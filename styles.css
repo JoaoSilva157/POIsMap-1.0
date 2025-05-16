@@ -171,6 +171,28 @@ body {
 .premium-poi {
     font-weight: bold;
     color: #EC6525;
+    position: relative;
+}
+
+.premium-poi::after {
+    content: "★";
+    color: #EC6525;
+    margin-left: 5px;
+    font-size: 14px;
+}
+
+.poi-legend {
+    padding: 10px 20px;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+    border-bottom: 1px solid #f0e6e0;
+}
+
+.premium-poi-legend {
+    color: #EC6525;
+    font-size: 14px;
+    margin-right: 5px;
 }
 
 #poiList {

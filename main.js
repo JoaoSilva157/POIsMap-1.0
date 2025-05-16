@@ -59,7 +59,8 @@ const translations = {
     excellent: "Excelente",
     good: "Bom",
     average: "Médio",
-    poor: "Fraco"
+    poor: "Fraco",
+    premiumLegend: "POIs Premium (maior impacto na valorização)"
   },
   en: {
     search: "Search",
@@ -87,7 +88,8 @@ const translations = {
     excellent: "Excellent",
     good: "Good",
     average: "Average",
-    poor: "Poor"
+    poor: "Poor",
+    premiumLegend: "Premium POIs (higher impact on valuation)"
   }
 };
 let currentLang = "pt";
@@ -273,9 +275,21 @@ const FALLBACK_SVG_ICON_URL = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3
 
 // --- Helper: Custom Icon Loader ---
 function makeCustomIcon(label) {
+  // Correção para o ícone da farmácia
+  if (label === 'Farmácia' && typeof poiIconBase64 !== "undefined" && !poiIconBase64[label]) {
+    // Criar um ícone SVG para farmácia
+    return L.icon({
+      iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="14" fill="%23EC6525" stroke="white" stroke-width="3"/><text x="16" y="22" font-size="16" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold">+</text></svg>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
+  }
+
   let iconUrl = (typeof poiIconBase64 !== "undefined" && poiIconBase64[label]) ? poiIconBase64[label] : null;
   // Fallback: use a default SVG icon in your theme color
   if (!iconUrl) {
+    console.log(`Ícone não encontrado para: ${label}`);
     iconUrl = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="14" fill="%23EC6525" stroke="white" stroke-width="3"/></svg>';
   }
   return L.icon({
@@ -333,7 +347,42 @@ async function fetchPOIs(lat, lon, radius, filterIndex) {
   const url = "https://overpass-api.de/api/interpreter";
   const resp = await fetch(url, { method: "POST", body: query });
   const data = await resp.json();
-  return data.elements;
+  
+  // Remover duplicatas baseadas na combinação de chave, valor e localização
+  const uniquePOIs = [];
+  const seen = new Set();
+  
+  data.elements.forEach(poi => {
+    // Extrair coordenadas
+    const lat = poi.lat || (poi.center ? poi.center.lat : null);
+    const lon = poi.lon || (poi.center ? poi.center.lon : null);
+    
+    if (!lat || !lon) return;
+    
+    // Encontrar o tipo de POI
+    let poiType = null;
+    for (const t of poiTypes) {
+      if (poi.tags && poi.tags[t.key] === t.value) {
+        poiType = t;
+        break;
+      }
+    }
+    
+    if (!poiType) return;
+    
+    // Criar uma chave única baseada no tipo e localização aproximada (arredondada para 5 casas decimais)
+    const roundedLat = Math.round(lat * 100000) / 100000;
+    const roundedLon = Math.round(lon * 100000) / 100000;
+    const key = `${poiType.key}:${poiType.value}:${roundedLat}:${roundedLon}`;
+    
+    // Se ainda não vimos este POI, adicione-o à lista
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniquePOIs.push(poi);
+    }
+  });
+  
+  return uniquePOIs;
 }
 
 // --- Render POIs on Map and Sidebar ---
