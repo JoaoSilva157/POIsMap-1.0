@@ -130,6 +130,49 @@ body {
     margin: 10px 0 10px 10px;
 }
 
+.quality-indicators {
+    padding: 0 20px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.quality-indicators h3 {
+    color: #EC6525;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #EC6525;
+    padding-bottom: 5px;
+}
+
+.quality-score {
+    margin-bottom: 12px;
+}
+
+.quality-score-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3px;
+    font-weight: 500;
+}
+
+.quality-score-bar {
+    height: 8px;
+    background: #f0e6e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.quality-score-fill {
+    height: 100%;
+    background: #EC6525;
+    border-radius: 4px;
+}
+
+.premium-poi {
+    font-weight: bold;
+    color: #EC6525;
+}
+
 #poiList {
     padding: 0 20px 20px 20px;
 }
