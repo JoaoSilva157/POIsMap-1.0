@@ -7,7 +7,7 @@ body {
 }
 
 #map {
-    height: calc(100vh - 120px);
+    height: calc(100vh - 70px); /* Reduced height since header was removed */
     width: 100vw;
     background: #f9f5f3;
     margin: 0;
@@ -74,11 +74,11 @@ body {
 
 #poiSidebar {
     position: fixed;
-    top: 80px;
+    top: 40px; /* Adjusted since header was removed */
     left: 0;
     width: 350px;
     max-width: 90vw;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 40px); /* Adjusted since header was removed */
     background: #fff;
     border-radius: 0 8px 8px 0;
     font-size: 15px;

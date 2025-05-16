@@ -18,7 +18,7 @@ const poiTypes = [
   { key: 'tourism', value: 'viewpoint', label: 'Miradouro', iconFile: 'Miradouro.png' },
   { key: 'tourism', value: 'museum', label: 'Museu', iconFile: 'Museu.png' },
   { key: 'highway', value: 'bus_stop', label: 'Paragem de Autocarro', iconFile: 'Paragem_de_Autocarro.png' },
-  { key: 'amenity', value: 'parking', label: 'Estacionamento', iconFile: 'Parque_de_Estacionamento.png' },
+  { key: 'amenity', value: 'parking', label: 'Estacionamento', iconFile: 'Estacionamento.png' },
   { key: 'leisure', value: 'playground', label: 'Parque Infantil', iconFile: 'Parque_Infantil.png' },
   { key: 'leisure', value: 'park', label: 'Parque', iconFile: 'Parque.png' },
   { key: 'amenity', value: 'police', label: 'Polícia', iconFile: 'Polícia.png' },
@@ -311,7 +311,12 @@ radiusSlider.oninput = (e) => {
 };
 
 poiFilter.onchange = () => {
-  updateLanguageUI();
+  // If we already have a search location, perform a new search with the filter
+  if (lastAddress) {
+    handleSearch();
+  } else {
+    updateLanguageUI();
+  }
 };
 
 langSwitcher.onchange = (e) => {
@@ -369,7 +374,7 @@ function updateLanguageUI() {
 // Attach an event handler to the export PDF button
 exportPdfBtn.onclick = () => {
   // Check if the jsPDF library is loaded
-  if (typeof jsPDF === 'undefined') {
+  if (typeof window.jspdf === 'undefined') {
     console.error("jsPDF is not loaded. Please ensure the jsPDF library is included.");
     alert("Failed to export PDF. The jsPDF library is not loaded.");
     return;
@@ -383,7 +388,9 @@ exportPdfBtn.onclick = () => {
   // Iterate through the list of POIs in the sidebar
   for (const li of poiList.children) {
     const img = li.querySelector('img'); // Get the POI image
-    const text = li.textContent; // Get the POI text description
+    // Get the POI text description (using textContent of the span to avoid getting the image text)
+    const textSpan = li.querySelector('span');
+    const text = textSpan ? textSpan.textContent : li.textContent;
 
     if (img) {
       try {
