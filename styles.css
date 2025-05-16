@@ -1,10 +1,9 @@
 body {
-    --placeholder-color: #494343; /* Define a CSS variable for placeholder color */
+    background: #f9f5f3;
+    color: #494343;
+    font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f9f5f3; /* Background color matching the body */
-    color: #494343;
 }
 
 #map {
@@ -17,16 +16,15 @@ body {
 
 .header {
     background: #f9f5f3;
-    padding: 18px 0 10px 0;
-    text-align: center;
+    color: #EC6525;
     font-size: 2rem;
     font-weight: bold;
-    color: #EC6525;
+    text-align: center;
+    padding: 18px 0 10px 0;
     border-bottom: 2px solid #EC6525;
-    /* Ensures the header stays above other elements like the map and popups */
+    letter-spacing: 1px;
     z-index: 1000;
     position: relative;
-    letter-spacing: 1px;
 }
 
 .toolbar {
@@ -74,56 +72,6 @@ body {
     accent-color: #EC6525;
 }
 
-input[type="text"], select, input[type="range"] {
-    font-size: 16px;
-    margin: 0 4px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    color: #494343;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.leaflet-popup-content-wrapper {
-    background: #fff;
-    border: 2px solid var(--theme-accent-color, #EC6525);
-    color: #494343;
-    border-radius: 8px;
-}
-
-.leaflet-popup-tip {
-    background: var(--theme-accent-color, #EC6525);
-    border-radius: 8px;
-}
-
-::placeholder,
-::-webkit-input-placeholder,
-::-moz-placeholder,
-:-ms-input-placeholder {
-    color: var(--placeholder-color);
-}
-
-.poi {
-    background-color: #ffffff;
-    border: 1px solid #007bff;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.poi-title {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.poi-description {
-    font-size: 14px;
-    color: #555;
-}
-
-/* Sidebar styles */
 #poiSidebar {
     position: fixed;
     top: 80px;
@@ -137,7 +85,7 @@ input[type="text"], select, input[type="range"] {
     box-shadow: 2px 0 8px rgba(0,0,0,0.1);
     overflow-y: auto;
     z-index: 1100;
-    display: none; /* Hidden by default */
+    display: none;
     color: #494343;
 }
 
@@ -146,10 +94,6 @@ input[type="text"], select, input[type="range"] {
 }
 
 #openSidebarBtn {
-    position: fixed;
-    top: 90px;
-    left: 10px;
-    z-index: 1200;
     background: #EC6525;
     color: #fff;
     border: none;
@@ -171,6 +115,10 @@ input[type="text"], select, input[type="range"] {
     margin: 10px 0 10px 10px;
 }
 
+#poiList {
+    padding: 0 20px 20px 20px;
+}
+
 #poiList li {
     list-style: none;
     margin: 10px 0;
@@ -185,4 +133,23 @@ input[type="text"], select, input[type="range"] {
     height: 24px;
     margin-right: 10px;
     vertical-align: middle;
+}
+
+.leaflet-popup-content-wrapper {
+    background: #fff;
+    border: 2px solid #EC6525;
+    color: #494343;
+    border-radius: 8px;
+}
+
+.leaflet-popup-tip {
+    background: #EC6525;
+    border-radius: 8px;
+}
+
+::placeholder,
+::-webkit-input-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+    color: #494343;
 }
